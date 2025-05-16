@@ -82,7 +82,7 @@ function AppContent() {
                   </span>
                 </h1>
                 {formMeta && (
-                  <div className="bg-red-300 rounded-xl p-4 shadow-md inline-block">
+                  <div className="bg-red-400 rounded-xl p-4 shadow-md inline-block">
                     <h2 className="text-xl font-bold text-purple-800">{formMeta.name}</h2>
                     {formMeta.description && (
                       <p className="text-gray-600">{formMeta.description}</p>
