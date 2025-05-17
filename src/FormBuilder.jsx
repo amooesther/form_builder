@@ -79,7 +79,7 @@ export default function FormBuilder({ onFormUpdate }) {
   }, [onFormUpdate]);
 
   return (
-    <div className="bg-red-500 rounded-xl shadow-xl overflow-hidden border border-gray-200">
+    <div className="bg-gray-700 rounded-xl shadow-xl overflow-hidden border border-gray-200">
       <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-100 to-purple-100">
         <h2 className="text-xl font-semibold text-gray-800">
           Form Builder Canvas
