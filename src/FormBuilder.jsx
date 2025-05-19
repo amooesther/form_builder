@@ -1,75 +1,82 @@
 import React, { useEffect, useRef } from 'react';
 import { Formio } from 'formiojs';
-import 'formiojs/dist/formio.builder.min.css';
-import 'formiojs/dist/formio.form.min.css';
-import './formio-custom.css'; // Import the CSS file
+import 'formiojs/dist/formio.builder.css'; // Corrected CSS import
+import 'formiojs/dist/formio.form.css';    // Corrected CSS import
+import './formio-custom.css';         // Corrected CSS import
 
 export default function FormBuilder({ onFormUpdate }) {
   const builderRef = useRef(null);
   const builderInstance = useRef(null);
 
   useEffect(() => {
-    Formio.builder(
-      builderRef.current,
-      {
-        display: 'form',
-        components: [],
-      },
-      {
-        builder: {
-          basic: {
-            title: 'Basic Components',
-            default: true,
-            weight: 0,
-            components: {
-              textfield: true,
-              textarea: true,
-              number: true,
-              password: true,
-              checkbox: true,
-              selectboxes: true,
-              select: true,
-              radio: true,
-              button: true,
-            },
-          },
-          advanced: {
-            title: 'Advanced',
-            weight: 10,
-            components: {
-              email: true,
-              phoneNumber: true,
-              address: true,
-              datetime: true,
-              day: true,
-              time: true,
-              currency: true,
-              signature: true,
-            },
-          },
-          layout: {
-            title: 'Layout',
-            weight: 20,
-            components: {
-              columns: true,
-              panel: true,
-              fieldset: true,
-              table: true,
-              tabs: true,
-              well: true,
-            },
-          },
+    try {
+      Formio.builder(
+        builderRef.current,
+        {
+          display: 'form',
+          components: [],
         },
-      }
-    ).then((builder) => {
-      builderInstance.current = builder;
+        {
+          builder: {
+            basic: {
+              title: 'Basic Components',
+              default: true,
+              weight: 0,
+              components: {
+                textfield: true,
+                textarea: true,
+                number: true,
+                password: true,
+                checkbox: true,
+                selectboxes: true,
+                select: true,
+                radio: true,
+                button: true,
+              },
+            },
+            advanced: {
+              title: 'Advanced',
+              weight: 10,
+              components: {
+                email: true,
+                phoneNumber: true,
+                address: true,
+                datetime: true,
+                day: true,
+                time: true,
+                currency: true,
+                signature: true,
+              },
+            },
+            layout: {
+              title: 'Layout',
+              weight: 20,
+              components: {
+                columns: true,
+                panel: true,
+                fieldset: true,
+                table: true,
+                tabs: true,
+                well: true,
+                content: true, // Add the content component here
+              },
+            },
+          },
+        }
+      ).then((builder) => {
+        builderInstance.current = builder;
 
-      builder.on('change', (schema) => {
-        onFormUpdate(schema);
+        builder.on('change', (schema) => {
+          onFormUpdate(schema);
+        });
+
+        onFormUpdate(builder.schema);
       });
+    } catch (error) {
+      console.error("Formio.builder initialization error:", error);
+     
+    }
 
-      onFormUpdate(builder.schema);
-    });
 
     return () => {
       if (builderInstance.current) {
@@ -79,7 +86,7 @@ export default function FormBuilder({ onFormUpdate }) {
   }, [onFormUpdate]);
 
   return (
-    <div className="bg-gray-700 rounded-xl shadow-xl overflow-hidden border border-gray-200">
+    <div className="bg-blue-600 rounded-xl shadow-xl overflow-hidden border border-gray-200">
       <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-100 to-purple-100">
         <h2 className="text-xl font-semibold text-gray-800">
           Form Builder Canvas
@@ -95,3 +102,4 @@ export default function FormBuilder({ onFormUpdate }) {
     </div>
   );
 }
+
