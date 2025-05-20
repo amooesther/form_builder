@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import FormBuilder from './FormBuilder';
 import CreateFormPage from './CreateFormPage';
 import FormViewer from './FormViewer';
+import FormRenderer from './FormRenderer.jsx'; 
 
 function AppContent() {
   const [formSchema, setFormSchema] = useState(null);
@@ -19,6 +20,11 @@ function AppContent() {
 
   const handleViewForm = () => {
     navigate('/view');
+  };
+
+  // New function to navigate to the render schema page
+  const handleRenderSchema = () => {
+    navigate('/render-schema');
   };
 
   const handleSubmit = async () => {
@@ -70,6 +76,40 @@ function AppContent() {
 
   return (
     <>
+      {/* Navigation Bar - You can add this anywhere you want the buttons to appear */}
+      <nav className="bg-gray-800 p-4 shadow-lg">
+        <div className="container mx-auto flex justify-between items-center">
+          <Link to="/" className="text-white text-2xl font-bold hover:text-gray-300 transition-colors">
+            Form App
+          </Link>
+          <ul className="flex space-x-6">
+            <li>
+              <Link to="/create" className="text-white hover:text-gray-300 transition-colors text-lg">
+                Create Form
+              </Link>
+            </li>
+            <li>
+              <Link to="/builder" className="text-white hover:text-gray-300 transition-colors text-lg">
+                Form Builder
+              </Link>
+            </li>
+            {/* New link for rendering schema */}
+            <li>
+              <Link to="/render-schema" className="text-white hover:text-gray-300 transition-colors text-lg">
+                Render Schema
+              </Link>
+            </li>
+            {formSchema && ( // Only show View Created Form if a schema exists
+              <li>
+                <Link to="/view" className="text-white hover:text-gray-300 transition-colors text-lg">
+                  View Created Form
+                </Link>
+              </li>
+            )}
+          </ul>
+        </div>
+      </nav>
+
       <Routes>
         <Route path="/create" element={<CreateFormPage onCreateForm={handleCreateForm} />} />
         <Route path="/builder" element={
@@ -160,6 +200,13 @@ function AppContent() {
                         }`}
                       >
                         View Created Form
+                      </button>
+                      {/* New button to navigate to Render Schema page */}
+                      <button
+                        onClick={handleRenderSchema}
+                        className="w-full px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl"
+                      >
+                        Render Form from Schema
                       </button>
                       <Link
                         to="/create"
@@ -254,6 +301,9 @@ function AppContent() {
           </div>
         } />
         <Route path="/view" element={<FormViewer formSchema={formSchema} formMeta={formMeta} />} />
+        {/* New Route for FormRenderer */}
+        <Route path="/render-schema" element={<FormRenderer />} /> 
+
         <Route path="/" element={
           <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
             <div className="bg-white rounded-2xl shadow-xl p-12 text-center max-w-2xl">
