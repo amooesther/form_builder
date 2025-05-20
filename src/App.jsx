@@ -1,30 +1,34 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+
+// Import your existing components
 import FormBuilder from './FormBuilder';
 import CreateFormPage from './CreateFormPage';
 import FormViewer from './FormViewer';
-import FormRenderer from './FormRenderer.jsx'; 
+
+// Import the new components.
+// Ensure FormSchemaRenderer.jsx is renamed to RenderExistingForm.jsx as discussed previously.
+import HomePage from './HomePage'; // Your new landing page
+import RenderExistingForm from './FormSchemaRenderer'; // This is the component for rendering existing forms from full JSON
 
 function AppContent() {
-  const [formSchema, setFormSchema] = useState(null);
-  const [formMeta, setFormMeta] = useState(null);
+  const [formSchema, setFormSchema] = useState(null); // Schema for the currently built form
+  const [formMeta, setFormMeta] = useState(null);   // Metadata (name, description) for the currently built form
   const [response, setResponse] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  // Handles creation of a new form's metadata, then navigates to the builder
   const handleCreateForm = (formData) => {
     setFormMeta(formData);
+    setFormSchema(null); // Clear previous schema when starting a new form
     console.log('Form created:', formData);
     navigate('/builder');
   };
 
+  // Navigates to the FormViewer for the currently built form
   const handleViewForm = () => {
     navigate('/view');
-  };
-
-  // New function to navigate to the render schema page
-  const handleRenderSchema = () => {
-    navigate('/render-schema');
   };
 
   const handleSubmit = async () => {
@@ -58,6 +62,7 @@ function AppContent() {
     }
   };
 
+  // Saves the currently built form's full JSON to console
   const handleSaveToConsole = () => {
     if (!formSchema || !formMeta) {
       setResponse({ error: 'No form schema or metadata to save' });
@@ -76,7 +81,7 @@ function AppContent() {
 
   return (
     <>
-      {/* Navigation Bar - You can add this anywhere you want the buttons to appear */}
+      {/* Navigation Bar */}
       <nav className="bg-gray-800 p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/" className="text-white text-2xl font-bold hover:text-gray-300 transition-colors">
@@ -85,7 +90,7 @@ function AppContent() {
           <ul className="flex space-x-6">
             <li>
               <Link to="/create" className="text-white hover:text-gray-300 transition-colors text-lg">
-                Create Form
+                Create New Form
               </Link>
             </li>
             <li>
@@ -93,16 +98,15 @@ function AppContent() {
                 Form Builder
               </Link>
             </li>
-            {/* New link for rendering schema */}
             <li>
-              <Link to="/render-schema" className="text-white hover:text-gray-300 transition-colors text-lg">
-                Render Schema
+              <Link to="/render-existing" className="text-white hover:text-gray-300 transition-colors text-lg">
+                Render Existing Form
               </Link>
             </li>
-            {formSchema && ( // Only show View Created Form if a schema exists
+            {formSchema && ( // Only show View Current Form if a schema exists from the builder
               <li>
                 <Link to="/view" className="text-white hover:text-gray-300 transition-colors text-lg">
-                  View Created Form
+                  View Current Form
                 </Link>
               </li>
             )}
@@ -111,7 +115,11 @@ function AppContent() {
       </nav>
 
       <Routes>
+        {/* Set HomePage as the default landing page */}
+        <Route path="/" element={<HomePage />} /> 
+
         <Route path="/create" element={<CreateFormPage onCreateForm={handleCreateForm} />} />
+        
         <Route path="/builder" element={
           <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-4 md:p-8">
             <div className="max-w-7xl mx-auto">
@@ -122,8 +130,8 @@ function AppContent() {
                   </span>
                 </h1>
                 {formMeta && (
-                  <div className="bg-red-400 rounded-xl p-4 shadow-md inline-block">
-                    <h2 className="text-xl font-bold text-purple-800">{formMeta.name}</h2>
+                  <div className="bg-orange-100 rounded-xl p-4 shadow-md inline-block">
+                    <h2 className="text-xl font-bold text-orange-800">{formMeta.name}</h2>
                     {formMeta.description && (
                       <p className="text-gray-600">{formMeta.description}</p>
                     )}
@@ -199,14 +207,7 @@ function AppContent() {
                             : 'bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white shadow-lg hover:shadow-xl'
                         }`}
                       >
-                        View Created Form
-                      </button>
-                      {/* New button to navigate to Render Schema page */}
-                      <button
-                        onClick={handleRenderSchema}
-                        className="w-full px-6 py-4 rounded-xl font-bold transition-all transform hover:scale-[1.02] bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl"
-                      >
-                        Render Form from Schema
+                        View Current Form
                       </button>
                       <Link
                         to="/create"
@@ -225,12 +226,20 @@ function AppContent() {
                         </h2>
                         <button
                           onClick={() => {
+                            // Combine formMeta and formSchema for a complete object to copy
+                            const fullFormForCopy = {
+                              name: formMeta?.name || "Untitled Form",
+                              description: formMeta?.description || "",
+                              schema: formSchema
+                            };
                             navigator.clipboard.writeText(
-                              JSON.stringify(formSchema, null, 2)
+                              JSON.stringify(fullFormForCopy, null, 2)
                             );
+                            setResponse({ success: 'Full form JSON copied to clipboard!' });
+                            setTimeout(() => setResponse(null), 3000); // Clear message after 3 seconds
                           }}
                           className="p-2 rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition-colors"
-                          title="Copy to clipboard"
+                          title="Copy Full Form JSON to clipboard"
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -301,28 +310,9 @@ function AppContent() {
           </div>
         } />
         <Route path="/view" element={<FormViewer formSchema={formSchema} formMeta={formMeta} />} />
-        {/* New Route for FormRenderer */}
-        <Route path="/render-schema" element={<FormRenderer />} /> 
-
-        <Route path="/" element={
-          <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
-            <div className="bg-white rounded-2xl shadow-xl p-12 text-center max-w-2xl">
-              <h1 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-600 to-blue-600">
-                Form Builder
-              </h1>
-              <p className="text-lg text-gray-600 mb-8">
-                Create beautiful forms with our drag and drop builder. 
-                Add fields, customize validation, and publish your forms with ease.
-              </p>
-              <Link
-                to="/create"
-                className="inline-block px-8 py-4 text-lg font-bold text-white bg-green-800 hover:to-blue-700 transition-all shadow-lg hover:shadow-xle"
-              >
-                Create New Form
-              </Link>
-            </div>
-          </div>
-        } />
+        
+        {/* New Route for rendering existing forms from full JSON */}
+        <Route path="/render-existing" element={<RenderExistingForm />} /> 
       </Routes>
     </>
   );
